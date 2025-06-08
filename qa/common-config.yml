@@ -1,0 +1,25 @@
+services:
+  network-backend-service:
+    networks:
+      - backend
+
+  microservice-base-service:
+    extends:
+      service: network-backend-service
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 700m
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+
+  microservice-configserver-service:
+    extends:
+      service: microservice-base-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_CONFIG_IMPORT=configserver:http://configserver:8071/
+      - SPRING_PROFILES_ACTIVE=qa
