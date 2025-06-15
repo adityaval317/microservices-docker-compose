@@ -1,0 +1,61 @@
+#!/bin/bash
+#
+# Run command using bash build-run-images.sh [old_build_version] [build_version] [profile]
+# This script builds the Docker images for the microservices defined in the docker-compose.yml file.
+REPOSITORY_ACCOUNT="adityaval317"
+
+# Check if the build version is provided as an argument
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 <arg1> <arg2>"
+  exit 1
+fi
+
+OLD_BUILD_VERSION=$1
+BUILD_VERSION=$2
+PROFILE=${3:-"default"}
+
+current_dir=$(pwd)
+echo "Current directory: $current_dir"
+if docker ps | grep -w "$REPOSITORY_ACCOUNT*"; then
+  echo "Waiting for Docker containers to stop..."
+  cd "$current_dir/$PROFILE"
+  docker-compose down
+  # sleep 20
+fi
+cd "$current_dir"
+microservices=("accounts" "cards" "loans" "config-server" "eureka-server")
+# Navigate to each directory and run mvn compile jib:dockerBuild
+for service in "${microservices[@]}"; do
+  # Check if docker containers are running and stop them
+
+  # Check if a docker image exists with old version
+  if docker images "$REPOSITORY_ACCOUNT/$service:$OLD_BUILD_VERSION"; then
+    echo "Removing old Docker image for $REPOSITORY_ACCOUNT/$service:$OLD_BUILD_VERSION"
+    docker rmi "$REPOSITORY_ACCOUNT/$service:$OLD_BUILD_VERSION" || true
+  fi
+  echo "Building Docker image for $service with version $BUILD_VERSION"
+  cd "../$service/"
+  mvn compile jib:dockerBuild -Dbuild.image.version=$BUILD_VERSION
+  while ! docker images "$REPOSITORY_ACCOUNT/$service:$BUILD_VERSION" > /dev/null; do
+    echo "Waiting for Docker image to be built for $REPOSITORY_ACCOUNT/$service:$BUILD_VERSION..."
+    sleep 5
+  done
+done
+
+echo "All Docker images built successfully."
+# Start the Docker containers using docker-compose
+echo "Starting Docker containers with docker-compose..."
+# Navigate to the directory containing the docker-compose.yml file
+echo "Using profile: $PROFILE"
+echo "Current directory: $current_dir"
+cd "$current_dir/$PROFILE"
+BUILD_VERSION=$BUILD_VERSION docker-compose up -d
+
+echo "Docker containers started successfully."
+# List the running Docker containers
+docker ps | grep "$REPOSITORY_ACCOUNT*"
+echo "All services are up and running."
+
+
+
+

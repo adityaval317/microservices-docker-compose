@@ -14,12 +14,18 @@ services:
     environment:
       - SPRING_RABBITMQ_HOST=rabbitmq
 
-  microservice-configserver-service:
+  microservice-config-service:
     extends:
       service: microservice-base-service
+    environment:
+      - SPRING_CONFIG_IMPORT=configserver:http://configserver:8071/
+      - SPRING_PROFILES_ACTIVE=qa
+
+  microservice-eureka-service:
+    extends:
+      service: microservice-config-service
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/postgres
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - SPRING_CONFIG_IMPORT=configserver:http://configserver:8071/
-      - SPRING_PROFILES_ACTIVE=qa
+      - SPRING_EUREKA_SERVER=eurekaserver
