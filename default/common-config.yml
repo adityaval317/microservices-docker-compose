@@ -25,7 +25,12 @@ services:
     extends:
       service: microservice-config-service
     environment:
+      - SPRING_EUREKA_SERVER=eurekaserver
+
+  microservice-application-service:
+    extends:
+      service: microservice-eureka-service
+    environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/postgres
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - SPRING_EUREKA_SERVER=eurekaserver

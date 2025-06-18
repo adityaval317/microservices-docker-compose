@@ -23,7 +23,7 @@ if docker ps | grep -w "$REPOSITORY_ACCOUNT*"; then
   # sleep 20
 fi
 cd "$current_dir"
-microservices=("accounts" "cards" "loans" "config-server" "eureka-server")
+microservices=("accounts" "cards" "loans" "config-server" "eureka-server" "gateway-server")
 # Navigate to each directory and run mvn compile jib:dockerBuild
 for service in "${microservices[@]}"; do
   # Check if docker containers are running and stop them

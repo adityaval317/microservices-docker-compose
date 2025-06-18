@@ -12,7 +12,7 @@ fi
 BUILD_VERSION=$1
 current_dir=$(pwd)
 echo "Current directory: $current_dir"
-microservices=("accounts" "cards" "loans" "config-server" "eureka-server")
+microservices=("accounts" "cards" "loans" "config-server" "eureka-server" "gateway-server")
 # Navigate to each directory and run mvn compile jib:dockerBuild
 for service in "${microservices[@]}"; do
   echo "Pushing Docker image for $service with version $BUILD_VERSION"
