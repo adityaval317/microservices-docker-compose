@@ -5,13 +5,14 @@
 REPOSITORY_ACCOUNT="adityaval317"
 
 # Check if the build version is provided as an argument
-if [ "$#" -ne 2 ]; then
-  echo "Usage: $0 <arg1> <arg2>"
+if [ "$#" -ne 3 ]; then
+  echo "Usage: $0 <arg1> <arg2> <arg3>"
   exit 1
 fi
 
 OLD_BUILD_VERSION=$1
 BUILD_VERSION=$2
+MICROSERVICE_NAME=${3:-"all"}
 PROFILE=${3:-"default"}
 
 current_dir=$(pwd)
@@ -24,6 +25,10 @@ if docker ps | grep -w "$REPOSITORY_ACCOUNT*"; then
 fi
 cd "$current_dir"
 microservices=("accounts" "cards" "loans" "config-server" "eureka-server" "gateway-server")
+# If the microservice name is provided, filter the list
+if [ "$MICROSERVICE_NAME" != "all" ]; then
+  microservices=("$MICROSERVICE_NAME")
+fi
 # Navigate to each directory and run mvn compile jib:dockerBuild
 for service in "${microservices[@]}"; do
   # Check if docker containers are running and stop them
