@@ -93,6 +93,19 @@ services:
       file: common-config.yml
       service: network-backend-service
 
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    command: -config.file /etc/tempo-config.yml
+    ports:
+      - "3110:3100"
+      - "4317:4317"
+    volumes:
+      - ../observability/tempo/tempo.yml:/etc/tempo-config.yml
+    extends:
+      file: common-config.yml
+      service: network-backend-service
+
   grafana:
     image: grafana/grafana:latest
     environment:
@@ -204,28 +217,28 @@ services:
       file: common-config.yml
       service: network-backend-service
 
-  keycloak:
-    image: quay.io/keycloak/keycloak:latest
-    container_name: keycloak-ms
-    ports:
-      - "7080:8080"
-      - "9001:9000"
-    healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/9000;echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost:9000\\r\\nConnection: close\\r\\n\\r\\n' >&3;cat <&3 | grep -q '\"status\": \"UP\"' && exit 0 || exit 1"]
-      interval: 5s
-      timeout: 5s
-      retries: 30
-    environment:
-      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
-      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
-      - KC_HEALTH_ENABLED=true
-      - KC_METRICS_ENABLED=true
-      - KEYCLOAK_HTTPS_PORT=0
-    command:
-      - start-dev
-    extends:
-      file: common-config.yml
-      service: network-backend-service
+#  keycloak:
+#    image: quay.io/keycloak/keycloak:latest
+#    container_name: keycloak-ms
+#    ports:
+#      - "7080:8080"
+#      - "9001:9000"
+#    healthcheck:
+#      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/9000;echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost:9000\\r\\nConnection: close\\r\\n\\r\\n' >&3;cat <&3 | grep -q '\"status\": \"UP\"' && exit 0 || exit 1"]
+#      interval: 5s
+#      timeout: 5s
+#      retries: 30
+#    environment:
+#      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+#      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+#      - KC_HEALTH_ENABLED=true
+#      - KC_METRICS_ENABLED=true
+#      - KEYCLOAK_HTTPS_PORT=0
+#    command:
+#      - start-dev
+#    extends:
+#      file: common-config.yml
+#      service: network-backend-service
 
   redis:
     image: redis:latest
@@ -267,9 +280,9 @@ services:
         condition: service_healthy
     healthcheck:
       test: curl --fail --silent http://localhost:8071/actuator/health/readiness | grep UP || exit 1
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
     extends:
       file: common-config.yml
@@ -285,9 +298,9 @@ services:
         condition: service_healthy
     healthcheck:
       test: curl --fail --silent http://localhost:8070/actuator/health/readiness | grep UP || exit 1
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
     environment:
       - SPRING_APPLICATION_NAME=eureka-server
@@ -306,9 +319,9 @@ services:
         condition: service_healthy
     healthcheck:
       test: curl --fail --silent http://localhost:8081/actuator/health/readiness | grep UP || exit 1
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
     ports:
       - "8081:8081"
@@ -328,9 +341,9 @@ services:
         condition: service_healthy
     healthcheck:
       test: curl --fail --silent http://localhost:8090/actuator/health/readiness | grep UP || exit 1
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
     ports:
       - "8090:8090"
@@ -350,9 +363,9 @@ services:
         condition: service_healthy
     healthcheck:
       test: curl --fail --silent http://localhost:9000/actuator/health/readiness | grep UP || exit 1
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
     ports:
       - "9000:9000"
@@ -366,8 +379,8 @@ services:
     image: adityaval317/gateway-server:${BUILD_VERSION:-s8}
     container_name: gateway-server-ms
     depends_on:
-      keycloak:
-        condition: service_healthy
+#      keycloak:
+#        condition: service_healthy
       redis:
         condition: service_healthy
       configserver:

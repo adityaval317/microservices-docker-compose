@@ -13,7 +13,7 @@ fi
 OLD_BUILD_VERSION=$1
 BUILD_VERSION=$2
 MICROSERVICE_NAME=${3:-"all"}
-PROFILE=${3:-"default"}
+PROFILE=${4:-"default"}
 
 current_dir=$(pwd)
 echo "Current directory: $current_dir"
