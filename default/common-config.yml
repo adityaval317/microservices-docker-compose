@@ -16,10 +16,9 @@ services:
     environment:
       - SPRING_RABBITMQ_HOST=rabbitmq
       - JAVA_TOOL_OPTIONS=-javaagent:/app/opentelemetry-javaagent.jar
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4317
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318
       - OTEL_METRICS_EXPORTER=none
       - OTEL_LOGS_EXPORTER=none
-      - OTEL_SERVICE_NAME=${SPRING_APPLICATION_NAME}
 
   microservice-config-service:
     extends:
