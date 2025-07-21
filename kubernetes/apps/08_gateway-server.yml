@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gatewayserver-deployment
+  labels:
+    app: gateway-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway-server
+  template:
+    metadata:
+      labels:
+        app: gateway-server
+    spec:
+      containers:
+        - name: gateway-server
+          image: adityaval317/gateway-server:14
+          ports:
+            - containerPort: 8072
+          env:
+            - name: SPRING_APPLICATION_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: microservices-config
+                  key: GATEWAY_APPLICATION_NAME
+            - name: SPRING_CONFIG_IMPORT
+              valueFrom:
+                configMapKeyRef:
+                  name: microservices-config
+                  key: SPRING_CONFIG_IMPORT
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: microservices-config
+                  key: SPRING_PROFILES_ACTIVE
+            - name: SPRING_EUREKA_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: microservices-config
+                  key: SPRING_EUREKA_SERVER
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI
+              valueFrom:
+                configMapKeyRef:
+                  name: microservices-config
+                  key: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-server
+spec:
+  selector:
+    app: gateway-server
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8072
+      targetPort: 8072
+
